@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Memory Game</title>
+    <style>
+        body {
+            font-family: Arial;
+            text-align: center;
+            background: #f3e5f5;
+        }
+        #game {
+            display: grid;
+            grid-template-columns: repeat(4, 80px);
+            gap: 10px;
+            justify-content: center;
+            margin: 25px;
+        }
+        .card {
+            width: 80px;
+            height: 80px;
+            font-size: 30px;
+            background: #673ab7;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+        .matched {
+            background: #4caf50;
+            cursor: default;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Sample Memory Game</h1>
+    <p>Find all 8 matching pairs!</p>
+    <h3>Moves: <span id="moves">0</span></h3>
+
+    <div id="game"></div>
+    <p id="message"></p>
+
+
+    <button onclick="startGame()">Restart Game</button>
+    <script>
+        let emojis = ["🎶", "🤖", "🪐", "🍒",
+                      "🎶", "🤖", "🪐", "🍒",
+                      "🎨", "⚓", "👻", "🦁",
+                      "🎨", "⚓", "👻", "🦁"];
+
+        let firstCard = null;
+        let secondCard = null;
+        let lockBoard = false;
+        let moves = 0;
+        let matchedPairs = 0;
+        
+        function startGame() {
+            let game = document.getElementById("game");
+
+            game.innerHTML = "";
+            document.getElementById("message").textContent = "";
+
+            firstCard = null;
+            secondCard = null;
+            lockBoard = false;
+            moves = 0;
+            matchedPairs = 0;
+
+            document.getElementById("moves").textContent = moves;
+
+            emojis.sort(() => Math.random() - 0.5);
+
+            emojis.forEach(emoji => {
+                let card = document.createElement("button");
+
+                card.className = "card";
+                card.textContent = "?";
+                card.dataset.emoji = emoji;
+
+                card.onclick = function() {
+                    flipCard(card);
+                };
+
+                game.appendChild(card);
+            });
+        }
+
+        function flipCard(card) {
+            if (lockBoard || card === firstCard ||
+                card.classList.contains("matched")) {
+                return;
+            }
+
+            card.textContent = card.dataset.emoji;
+
+            if (firstCard === null) {
+                firstCard = card;
+                return;
+            }
+
+            secondCard = card;
+            moves++;
+
+            document.getElementById("moves").textContent = moves;
+
+            if (firstCard.dataset.emoji === secondCard.dataset.emoji) {
+                firstCard.classList.add("matched");
+                secondCard.classList.add("matched");
+
+                matchedPairs++;
+
+                firstCard = null;
+                secondCard = null;
+
+                if (matchedPairs === 8) {
+                    document.getElementById("message").textContent =
+                        "🎉 You won in " + moves + " moves!";
+                }
+            } else {
+                lockBoard = true;
+
+                setTimeout(function() {
+                    firstCard.textContent = "?";
+                    secondCard.textContent = "?";
+
+                    firstCard = null;
+                    secondCard = null;
+                    lockBoard = false;
+                }, 1000);
+            }
+        }
+
+        startGame();
+    </script>
+
+</body>
+</html>
